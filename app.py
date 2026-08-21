@@ -436,14 +436,11 @@ except Exception:
 
 
 # =========================================================
-# SNAKE GAME TO UNLOCK PREDICTION
+# SNAKE GAME + AUTO UNLOCK + LEADERBOARD
 # =========================================================
 
+import json
 import streamlit.components.v1 as components
-
-
-if "snake_unlocked" not in st.session_state:
-    st.session_state.snake_unlocked = False
 
 
 st.markdown(
@@ -452,394 +449,1180 @@ st.markdown(
 )
 
 
-if not st.session_state.snake_unlocked:
+# Parameters passed from Streamlit to JavaScript
+game_params = json.dumps({
+    "pickup_datetime": pickup_datetime,
+    "pickup_longitude": pickup_longitude,
+    "pickup_latitude": pickup_latitude,
+    "dropoff_longitude": dropoff_longitude,
+    "dropoff_latitude": dropoff_latitude,
+    "passenger_count": passenger_count
+})
 
-    st.markdown(
-        """
-        <div style="
-            background:white;
-            border:1px solid #E9E9E4;
-            border-radius:24px;
-            padding:24px;
-            margin-bottom:16px;
-        ">
-            <div style="
-                font-size:1.2rem;
-                font-weight:700;
-                color:#151515;
-                margin-bottom:6px;
-            ">
-                Snake challenge
+
+snake_html = f"""
+<div id="game-app">
+
+    <style>
+
+        * {{
+            box-sizing: border-box;
+        }}
+
+        #game-app {{
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            color: #171717;
+            width: 100%;
+        }}
+
+        .game-layout {{
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }}
+
+        .game-card {{
+            background: #FFFFFF;
+            border: 1px solid #E9E9E4;
+            border-radius: 24px;
+            padding: 22px;
+        }}
+
+        .game-header {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }}
+
+        .game-title {{
+            font-size: 20px;
+            font-weight: 750;
+            letter-spacing: -0.03em;
+        }}
+
+        .game-subtitle {{
+            font-size: 13px;
+            color: #81817B;
+            margin-top: 4px;
+        }}
+
+        .score-pill {{
+            background: #F0FFC0;
+            border-radius: 999px;
+            padding: 8px 14px;
+            font-weight: 750;
+            font-size: 14px;
+        }}
+
+        canvas {{
+            display: block;
+            width: 100%;
+            height: auto;
+
+            background: #171717;
+
+            border-radius: 20px;
+            outline: none;
+        }}
+
+        .game-message {{
+            min-height: 24px;
+            margin-top: 14px;
+
+            color: #777770;
+            font-size: 14px;
+        }}
+
+        .restart-button {{
+            width: 100%;
+            height: 50px;
+
+            margin-top: 12px;
+
+            border: none;
+            border-radius: 16px;
+
+            background: #D8FF45;
+            color: #171717;
+
+            font-weight: 750;
+            font-size: 14px;
+
+            cursor: pointer;
+        }}
+
+        .restart-button:hover {{
+            background: #E2FF6E;
+        }}
+
+        .leaderboard-title {{
+            font-size: 16px;
+            font-weight: 750;
+            margin-bottom: 14px;
+        }}
+
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+        }}
+
+        th {{
+            text-align: left;
+            color: #8B8B84;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding-bottom: 10px;
+        }}
+
+        td {{
+            padding: 11px 0;
+            border-top: 1px solid #EEEEEA;
+            font-size: 14px;
+        }}
+
+        .rank {{
+            width: 40px;
+            font-weight: 700;
+        }}
+
+        .leader-score {{
+            font-weight: 750;
+            text-align: right;
+        }}
+
+        .unlock-card {{
+            margin-top: 20px;
+
+            background: #171717;
+            color: white;
+
+            border-radius: 24px;
+            padding: 24px;
+
+            display: none;
+
+            position: relative;
+            overflow: hidden;
+        }}
+
+        .unlock-card::after {{
+            content: "";
+
+            position: absolute;
+
+            width: 150px;
+            height: 150px;
+
+            right: -60px;
+            top: -70px;
+
+            background: #D8FF45;
+            border-radius: 50%;
+        }}
+
+        .unlock-label {{
+            color: #AFAFA8;
+
+            font-size: 11px;
+            font-weight: 700;
+
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+
+            position: relative;
+            z-index: 2;
+        }}
+
+        .unlock-price {{
+            font-size: 46px;
+            font-weight: 800;
+
+            letter-spacing: -0.06em;
+
+            margin-top: 6px;
+
+            position: relative;
+            z-index: 2;
+        }}
+
+        .unlock-text {{
+            color: #BDBDB7;
+            font-size: 14px;
+
+            margin-top: 8px;
+
+            position: relative;
+            z-index: 2;
+        }}
+
+        @media (max-width: 700px) {{
+
+            .game-layout {{
+                grid-template-columns: 1fr;
+            }}
+
+        }}
+
+    </style>
+
+
+    <div class="game-layout">
+
+
+        <!-- GAME -->
+        <div class="game-card">
+
+            <div class="game-header">
+
+                <div>
+                    <div class="game-title">
+                        Snake Challenge
+                    </div>
+
+                    <div class="game-subtitle">
+                        Get 2 points to unlock your fare.
+                    </div>
+                </div>
+
+                <div class="score-pill">
+                    Score:
+                    <span id="score">
+                        0
+                    </span>
+                </div>
+
             </div>
 
-            <div style="
-                color:#7B7B76;
-                font-size:0.95rem;
-            ">
-                Reach a score of 5 to unlock your fare prediction.
-                Use the arrow keys to move.
+
+            <canvas
+                id="snakeCanvas"
+                width="620"
+                height="360"
+                tabindex="0">
+            </canvas>
+
+
+            <div
+                id="message"
+                class="game-message">
+
+                Click the game and use your arrow keys.
+
             </div>
+
+
+            <button
+                id="restart"
+                class="restart-button">
+
+                Restart game
+
+            </button>
+
         </div>
-        """,
-        unsafe_allow_html=True
-    )
 
 
-    snake_html = """
-    <div id="snake-wrapper"
-         style="
-            width:100%;
-            display:flex;
-            flex-direction:column;
-            align-items:center;
-            font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-         ">
+        <!-- LEADERBOARD -->
+        <div class="game-card">
 
-        <div style="
-            width:100%;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            margin-bottom:12px;
-        ">
-            <div style="
-                font-size:14px;
-                color:#777;
-            ">
-                Score
+            <div class="leaderboard-title">
+                Leaderboard
             </div>
 
-            <div id="score"
-                 style="
-                    font-size:24px;
-                    font-weight:700;
-                    color:#151515;
-                 ">
-                0
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player</th>
+                        <th style="text-align:right;">
+                            Score
+                        </th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="leaderboard">
+
+                    <tr>
+                        <td class="rank">1</td>
+                        <td>Snake King</td>
+                        <td class="leader-score">12</td>
+                    </tr>
+
+                    <tr>
+                        <td class="rank">2</td>
+                        <td>Taxi Racer</td>
+                        <td class="leader-score">8</td>
+                    </tr>
+
+                    <tr>
+                        <td class="rank">3</td>
+                        <td>NYC Driver</td>
+                        <td class="leader-score">5</td>
+                    </tr>
+
+                    <tr>
+                        <td class="rank">4</td>
+                        <td>You</td>
+                        <td
+                            id="player-score"
+                            class="leader-score">
+                            0
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+
+            <div
+                id="unlock-card"
+                class="unlock-card">
+
+                <div class="unlock-label">
+                    Fare unlocked
+                </div>
+
+                <div
+                    id="prediction"
+                    class="unlock-price">
+
+                    ...
+
+                </div>
+
+                <div class="unlock-text">
+                    AI-powered estimated fare
+                </div>
+
             </div>
+
         </div>
-
-        <canvas
-            id="snakeCanvas"
-            width="500"
-            height="320"
-            style="
-                width:100%;
-                max-width:700px;
-                background:#171717;
-                border-radius:22px;
-                display:block;
-                outline:none;
-            "
-            tabindex="0">
-        </canvas>
-
-        <div id="message"
-             style="
-                margin-top:14px;
-                font-size:15px;
-                color:#777;
-                min-height:24px;
-             ">
-            Click the game, then use your arrow keys.
-        </div>
-
-        <button
-            id="restart"
-            style="
-                margin-top:12px;
-                width:100%;
-                max-width:700px;
-                min-height:48px;
-                border:none;
-                border-radius:16px;
-                background:#D8FF45;
-                color:#151515;
-                font-weight:700;
-                font-size:15px;
-                cursor:pointer;
-            ">
-            Restart
-        </button>
 
     </div>
 
-    <script>
-        const canvas = document.getElementById("snakeCanvas");
-        const ctx = canvas.getContext("2d");
-        const scoreEl = document.getElementById("score");
-        const messageEl = document.getElementById("message");
-        const restartBtn = document.getElementById("restart");
+</div>
 
-        const grid = 20;
-        const cols = canvas.width / grid;
-        const rows = canvas.height / grid;
 
-        let snake;
-        let food;
-        let dx;
-        let dy;
-        let nextDx;
-        let nextDy;
-        let score;
-        let gameOver;
-        let interval;
+<script>
 
-        function randomFood() {
-            return {
-                x: Math.floor(Math.random() * cols),
-                y: Math.floor(Math.random() * rows)
-            };
-        }
+    // =====================================================
+    // CONFIG
+    // =====================================================
 
-        function resetGame() {
-            snake = [
-                {x: 8, y: 8},
-                {x: 7, y: 8},
-                {x: 6, y: 8}
-            ];
+    const API_URL =
+        "https://taxifare.lewagon.ai/predict";
 
-            food = randomFood();
+    const API_PARAMS =
+        {game_params};
 
-            dx = 1;
-            dy = 0;
+    const TARGET_SCORE = 2;
+
+
+    // =====================================================
+    // ELEMENTS
+    // =====================================================
+
+    const canvas =
+        document.getElementById("snakeCanvas");
+
+    const ctx =
+        canvas.getContext("2d");
+
+    const scoreElement =
+        document.getElementById("score");
+
+    const playerScoreElement =
+        document.getElementById("player-score");
+
+    const messageElement =
+        document.getElementById("message");
+
+    const restartButton =
+        document.getElementById("restart");
+
+    const unlockCard =
+        document.getElementById("unlock-card");
+
+    const predictionElement =
+        document.getElementById("prediction");
+
+
+    // =====================================================
+    // GAME CONFIG
+    // =====================================================
+
+    const grid = 20;
+
+    const cols =
+        canvas.width / grid;
+
+    const rows =
+        canvas.height / grid;
+
+
+    let snake = [];
+
+    let food;
+
+    let dx = 1;
+    let dy = 0;
+
+    let nextDx = 1;
+    let nextDy = 0;
+
+    let score = 0;
+
+    let interval = null;
+
+    let predictionUnlocked = false;
+
+
+    // =====================================================
+    // RANDOM FOOD
+    // =====================================================
+
+    function createFood() {{
+
+        let position;
+
+        do {{
+
+            position = {{
+
+                x:
+                    Math.floor(
+                        Math.random() * cols
+                    ),
+
+                y:
+                    Math.floor(
+                        Math.random() * rows
+                    )
+
+            }};
+
+        }} while (
+
+            snake.some(
+                part =>
+                    part.x === position.x &&
+                    part.y === position.y
+            )
+
+        );
+
+
+        return position;
+
+    }}
+
+
+    // =====================================================
+    // RESET
+    // =====================================================
+
+    function resetGame() {{
+
+        snake = [
+
+            {{x: 8, y: 8}},
+            {{x: 7, y: 8}},
+            {{x: 6, y: 8}}
+
+        ];
+
+
+        dx = 1;
+        dy = 0;
+
+        nextDx = 1;
+        nextDy = 0;
+
+        score = 0;
+
+        predictionUnlocked = false;
+
+
+        scoreElement.textContent =
+            score;
+
+        playerScoreElement.textContent =
+            score;
+
+
+        unlockCard.style.display =
+            "none";
+
+
+        messageElement.innerHTML =
+            "Reach <strong>2 points</strong> to unlock the prediction.";
+
+
+        food =
+            createFood();
+
+
+        clearInterval(
+            interval
+        );
+
+
+        interval =
+            setInterval(
+                gameLoop,
+                100
+            );
+
+
+        canvas.focus();
+
+    }}
+
+
+    // =====================================================
+    // DRAW
+    // =====================================================
+
+    function draw() {{
+
+        ctx.clearRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+
+        ctx.fillStyle =
+            "#171717";
+
+        ctx.fillRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+
+        // Subtle grid
+
+        ctx.strokeStyle =
+            "#202020";
+
+        ctx.lineWidth =
+            1;
+
+
+        for (
+            let x = 0;
+            x < canvas.width;
+            x += grid
+        ) {{
+
+            ctx.beginPath();
+
+            ctx.moveTo(
+                x,
+                0
+            );
+
+            ctx.lineTo(
+                x,
+                canvas.height
+            );
+
+            ctx.stroke();
+
+        }}
+
+
+        for (
+            let y = 0;
+            y < canvas.height;
+            y += grid
+        ) {{
+
+            ctx.beginPath();
+
+            ctx.moveTo(
+                0,
+                y
+            );
+
+            ctx.lineTo(
+                canvas.width,
+                y
+            );
+
+            ctx.stroke();
+
+        }}
+
+
+        // Food
+
+        ctx.fillStyle =
+            "#D8FF45";
+
+        ctx.beginPath();
+
+        ctx.arc(
+
+            food.x * grid
+            + grid / 2,
+
+            food.y * grid
+            + grid / 2,
+
+            grid * 0.35,
+
+            0,
+
+            Math.PI * 2
+
+        );
+
+        ctx.fill();
+
+
+        // Snake
+
+        snake.forEach(
+            (segment, index) => {{
+
+                ctx.fillStyle =
+                    index === 0
+                    ? "#D8FF45"
+                    : "#FFFFFF";
+
+
+                ctx.beginPath();
+
+                ctx.roundRect(
+
+                    segment.x * grid + 2,
+
+                    segment.y * grid + 2,
+
+                    grid - 4,
+
+                    grid - 4,
+
+                    5
+
+                );
+
+                ctx.fill();
+
+            }}
+        );
+
+    }}
+
+
+    // =====================================================
+    // SELF COLLISION ONLY
+    // =====================================================
+
+    function hitsSnake(
+        head
+    ) {{
+
+        for (
+            let i = 1;
+            i < snake.length;
+            i++
+        ) {{
+
+            if (
+                head.x === snake[i].x &&
+                head.y === snake[i].y
+            ) {{
+
+                return true;
+
+            }}
+
+        }}
+
+
+        return false;
+
+    }}
+
+
+    // =====================================================
+    // AUTO PREDICTION
+    // =====================================================
+
+    async function unlockPrediction() {{
+
+        if (
+            predictionUnlocked
+        ) {{
+            return;
+        }}
+
+
+        predictionUnlocked =
+            true;
+
+
+        messageElement.innerHTML =
+            "<strong>Unlocked.</strong> Calculating your fare...";
+
+
+        predictionElement.textContent =
+            "...";
+
+
+        unlockCard.style.display =
+            "block";
+
+
+        const query =
+            new URLSearchParams(
+                API_PARAMS
+            );
+
+
+        try {{
+
+            const response =
+                await fetch(
+                    API_URL
+                    + "?"
+                    + query.toString()
+                );
+
+
+            if (
+                !response.ok
+            ) {{
+
+                throw new Error(
+                    "API error"
+                );
+
+            }}
+
+
+            const data =
+                await response.json();
+
+
+            const fare =
+                Number(
+                    data.fare
+                );
+
+
+            predictionElement.textContent =
+                "$"
+                + fare.toFixed(2);
+
+
+            messageElement.innerHTML =
+                "<strong>Prediction unlocked.</strong> Keep playing to improve your score.";
+
+
+        }}
+
+        catch (error) {{
+
+            predictionElement.textContent =
+                "Unavailable";
+
+
+            messageElement.textContent =
+                "Unable to retrieve the prediction.";
+
+        }}
+
+    }}
+
+
+    // =====================================================
+    // GAME LOOP
+    // =====================================================
+
+    function gameLoop() {{
+
+        dx =
+            nextDx;
+
+        dy =
+            nextDy;
+
+
+        let newX =
+            snake[0].x + dx;
+
+        let newY =
+            snake[0].y + dy;
+
+
+        // ---------------------------------------------
+        // WRAP AROUND BORDERS
+        // ---------------------------------------------
+
+        if (
+            newX < 0
+        ) {{
+
+            newX =
+                cols - 1;
+
+        }}
+
+
+        if (
+            newX >= cols
+        ) {{
+
+            newX =
+                0;
+
+        }}
+
+
+        if (
+            newY < 0
+        ) {{
+
+            newY =
+                rows - 1;
+
+        }}
+
+
+        if (
+            newY >= rows
+        ) {{
+
+            newY =
+                0;
+
+        }}
+
+
+        const head = {{
+
+            x:
+                newX,
+
+            y:
+                newY
+
+        }};
+
+
+        // ---------------------------------------------
+        // SELF COLLISION
+        // ---------------------------------------------
+
+        if (
+            hitsSnake(head)
+        ) {{
+
+            clearInterval(
+                interval
+            );
+
+
+            messageElement.innerHTML =
+                "<strong>Game over.</strong> Press restart to try again.";
+
+
+            updateLeaderboard();
+
+            return;
+
+        }}
+
+
+        snake.unshift(
+            head
+        );
+
+
+        // ---------------------------------------------
+        // FOOD
+        // ---------------------------------------------
+
+        if (
+            head.x === food.x &&
+            head.y === food.y
+        ) {{
+
+            score += 1;
+
+
+            scoreElement.textContent =
+                score;
+
+            playerScoreElement.textContent =
+                score;
+
+
+            food =
+                createFood();
+
+
+            updateLeaderboard();
+
+
+            // -----------------------------------------
+            // AUTO UNLOCK AFTER 2 POINTS
+            // -----------------------------------------
+
+            if (
+                score >= TARGET_SCORE &&
+                !predictionUnlocked
+            ) {{
+
+                unlockPrediction();
+
+            }}
+
+
+        }}
+
+        else {{
+
+            snake.pop();
+
+        }}
+
+
+        draw();
+
+    }}
+
+
+    // =====================================================
+    // LEADERBOARD
+    // =====================================================
+
+    function updateLeaderboard() {{
+
+        const players = [
+
+            {{
+                name:
+                    "Snake King",
+
+                score:
+                    12
+            }},
+
+            {{
+                name:
+                    "Taxi Racer",
+
+                score:
+                    8
+            }},
+
+            {{
+                name:
+                    "NYC Driver",
+
+                score:
+                    5
+            }},
+
+            {{
+                name:
+                    "You",
+
+                score:
+                    score
+            }}
+
+        ];
+
+
+        players.sort(
+            (a, b) =>
+                b.score - a.score
+        );
+
+
+        const table =
+            document.getElementById(
+                "leaderboard"
+            );
+
+
+        table.innerHTML =
+            "";
+
+
+        players.forEach(
+            (player, index) => {{
+
+                const row =
+                    document.createElement(
+                        "tr"
+                    );
+
+
+                row.innerHTML = `
+
+                    <td class="rank">
+                        ${{index + 1}}
+                    </td>
+
+                    <td>
+                        ${{player.name}}
+                    </td>
+
+                    <td
+                        class="leader-score"
+                        ${{player.name === "You"
+                            ? 'id="player-score"'
+                            : ''
+                        }}
+                    >
+
+                        ${{player.score}}
+
+                    </td>
+
+                `;
+
+
+                table.appendChild(
+                    row
+                );
+
+            }}
+        );
+
+    }}
+
+
+    // =====================================================
+    // CONTROLS
+    // =====================================================
+
+    function changeDirection(
+        event
+    ) {{
+
+        const key =
+            event.key;
+
+
+        if (
+            [
+                "ArrowUp",
+                "ArrowDown",
+                "ArrowLeft",
+                "ArrowRight"
+            ].includes(key)
+        ) {{
+
+            event.preventDefault();
+
+        }}
+
+
+        if (
+            key === "ArrowUp" &&
+            dy !== 1
+        ) {{
+
+            nextDx = 0;
+            nextDy = -1;
+
+        }}
+
+
+        if (
+            key === "ArrowDown" &&
+            dy !== -1
+        ) {{
+
+            nextDx = 0;
+            nextDy = 1;
+
+        }}
+
+
+        if (
+            key === "ArrowLeft" &&
+            dx !== 1
+        ) {{
+
+            nextDx = -1;
+            nextDy = 0;
+
+        }}
+
+
+        if (
+            key === "ArrowRight" &&
+            dx !== -1
+        ) {{
+
             nextDx = 1;
             nextDy = 0;
 
-            score = 0;
-            gameOver = false;
+        }}
 
-            scoreEl.textContent = score;
-            messageEl.textContent = "Reach 5 points to unlock the prediction.";
-
-            clearInterval(interval);
-            interval = setInterval(gameLoop, 110);
-
-            canvas.focus();
-        }
-
-        function drawRoundedRect(x, y, w, h, radius) {
-            ctx.beginPath();
-            ctx.roundRect(x, y, w, h, radius);
-            ctx.fill();
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = "#171717";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // food
-            ctx.fillStyle = "#D8FF45";
-            ctx.beginPath();
-            ctx.arc(
-                food.x * grid + grid / 2,
-                food.y * grid + grid / 2,
-                grid * 0.36,
-                0,
-                Math.PI * 2
-            );
-            ctx.fill();
-
-            // snake
-            snake.forEach((segment, index) => {
-                ctx.fillStyle = index === 0 ? "#FFFFFF" : "#E8E8E5";
-
-                drawRoundedRect(
-                    segment.x * grid + 2,
-                    segment.y * grid + 2,
-                    grid - 4,
-                    grid - 4,
-                    5
-                );
-            });
-        }
-
-        function collision(head) {
-            if (
-                head.x < 0 ||
-                head.x >= cols ||
-                head.y < 0 ||
-                head.y >= rows
-            ) {
-                return true;
-            }
-
-            for (let i = 1; i < snake.length; i++) {
-                if (
-                    head.x === snake[i].x &&
-                    head.y === snake[i].y
-                ) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        function unlockPrediction() {
-            clearInterval(interval);
-            gameOver = true;
-
-            messageEl.innerHTML =
-                "<strong style='color:#151515;'>Unlocked.</strong> Prediction ready.";
-
-            window.parent.postMessage(
-                {
-                    type: "streamlit:setComponentValue",
-                    value: "unlocked"
-                },
-                "*"
-            );
-        }
-
-        function gameLoop() {
-            if (gameOver) {
-                return;
-            }
-
-            dx = nextDx;
-            dy = nextDy;
-
-            const head = {
-                x: snake[0].x + dx,
-                y: snake[0].y + dy
-            };
-
-            if (collision(head)) {
-                clearInterval(interval);
-                gameOver = true;
-
-                messageEl.innerHTML =
-                    "<strong style='color:#151515;'>Game over.</strong> Hit restart to try again.";
-
-                return;
-            }
-
-            snake.unshift(head);
-
-            if (
-                head.x === food.x &&
-                head.y === food.y
-            ) {
-                score += 1;
-                scoreEl.textContent = score;
-                food = randomFood();
-
-                if (score >= 5) {
-                    draw();
-                    unlockPrediction();
-                    return;
-                }
-
-            } else {
-                snake.pop();
-            }
-
-            draw();
-        }
-
-        function changeDirection(event) {
-            const key = event.key;
-
-            if (
-                ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(key)
-            ) {
-                event.preventDefault();
-            }
-
-            if (key === "ArrowUp" && dy !== 1) {
-                nextDx = 0;
-                nextDy = -1;
-            }
-
-            if (key === "ArrowDown" && dy !== -1) {
-                nextDx = 0;
-                nextDy = 1;
-            }
-
-            if (key === "ArrowLeft" && dx !== 1) {
-                nextDx = -1;
-                nextDy = 0;
-            }
-
-            if (key === "ArrowRight" && dx !== -1) {
-                nextDx = 1;
-                nextDy = 0;
-            }
-        }
-
-        canvas.addEventListener("keydown", changeDirection);
-        window.addEventListener("keydown", changeDirection);
-
-        restartBtn.addEventListener("click", resetGame);
-
-        resetGame();
-        draw();
-    </script>
-    """
+    }}
 
 
-    result = components.html(
-        snake_html,
-        height=470,
-        scrolling=False
-    )
+    canvas.addEventListener(
+        "keydown",
+        changeDirection
+    );
 
 
-    # Fallback button because Streamlit components.html
-    # does not reliably send custom JS values back to Python.
-    st.caption("Reach 5 points, then unlock the fare below.")
-
-    if st.button("I reached 5 points — unlock prediction"):
-        st.session_state.snake_unlocked = True
-        st.rerun()
+    window.addEventListener(
+        "keydown",
+        changeDirection
+    );
 
 
-else:
-
-    st.success("Fare prediction unlocked")
-
-    with st.spinner("Calculating your fare..."):
-
-        try:
-            response = requests.get(
-                url,
-                params=params,
-                timeout=15
-            )
-
-            response.raise_for_status()
-
-            prediction = float(
-                response.json()["fare"]
-            )
-
-            st.markdown(
-                f"""
-                <div class="fare-result">
-                    <div class="fare-label">
-                        Estimated fare
-                    </div>
-
-                    <div class="fare-value">
-                        ${prediction:.2f}
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        except Exception:
-            st.error(
-                "Unable to retrieve the fare prediction."
-            )
+    restartButton.addEventListener(
+        "click",
+        resetGame
+    );
 
 
-    if st.button("Play Snake again"):
-        st.session_state.snake_unlocked = False
-        st.rerun()
+    // =====================================================
+    // START
+    // =====================================================
+
+    resetGame();
+
+    draw();
+
+</script>
+"""
+
+
+components.html(
+    snake_html,
+    height=590,
+    scrolling=False
+)
 
 # =========================================================
 # TRIP OVERVIEW + MAP
