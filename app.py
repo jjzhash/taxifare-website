@@ -19,7 +19,7 @@ st.set_page_config(
 
 
 # =========================================================
-# CSS — SUMERIA INSPIRED
+# CSS
 # =========================================================
 
 st.markdown(
@@ -50,67 +50,28 @@ st.markdown(
 
     .block-container {
         max-width: 1120px;
-        padding-top: 2rem;
+        padding-top: 1.5rem;
         padding-bottom: 4rem;
     }
 
-    #MainMenu {
-        visibility: hidden;
-    }
-
-    footer {
+    /* Hide Streamlit default chrome */
+    #MainMenu, footer, header {
         visibility: hidden;
     }
 
     [data-testid="stHeader"] {
-        background: rgba(247,247,244,0.88) !important;
-        backdrop-filter: blur(16px);
-        border-bottom: 1px solid rgba(0,0,0,0.04);
+        display: none !important;
+    }
+
+    [data-testid="stToolbar"] {
+        display: none !important;
     }
 
     [data-testid="stDecoration"] {
         display: none !important;
     }
 
-    [data-testid="stToolbar"] {
-        background: transparent !important;
-    }
-
-    /* HEADER */
-
-    .top-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 42px;
-    }
-
-    .brand {
-        font-size: 1.1rem;
-        font-weight: 750;
-        color: var(--text);
-        letter-spacing: -0.03em;
-    }
-
-    .status-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 999px;
-        padding: 8px 13px;
-        font-size: 0.82rem;
-        color: #55554F;
-    }
-
-    .status-dot {
-        width: 8px;
-        height: 8px;
-        background: var(--accent);
-        border-radius: 50%;
-    }
-
+    /* Hero */
     .hero {
         background: var(--card);
         border-radius: 32px;
@@ -146,8 +107,7 @@ st.markdown(
         line-height: 1.55;
     }
 
-    /* SECTION */
-
+    /* Section labels */
     .section-label {
         color: #81817B;
         font-size: 0.76rem;
@@ -174,8 +134,7 @@ st.markdown(
         font-weight: 550 !important;
     }
 
-    /* INPUTS */
-
+    /* Inputs */
     [data-baseweb="input"] {
         background: var(--card) !important;
         border-radius: 16px !important;
@@ -206,8 +165,7 @@ st.markdown(
         background: var(--card) !important;
     }
 
-    /* PREDICT BUTTON */
-
+    /* Predict button */
     div.stButton > button {
         width: 100%;
         min-height: 66px;
@@ -231,8 +189,7 @@ st.markdown(
         box-shadow: 0 14px 34px rgba(130,150,20,0.24);
     }
 
-    /* METRICS */
-
+    /* Metrics */
     [data-testid="stMetric"] {
         background: var(--card);
         padding: 20px;
@@ -253,8 +210,7 @@ st.markdown(
         letter-spacing: -0.04em;
     }
 
-    /* FARE RESULT */
-
+    /* Fare result */
     .fare-result {
         background: var(--dark);
         border-radius: 24px;
@@ -297,8 +253,7 @@ st.markdown(
         z-index: 1;
     }
 
-    /* MAP */
-
+    /* Map */
     iframe {
         border-radius: 24px !important;
         border: 1px solid var(--border) !important;
@@ -318,10 +273,10 @@ st.markdown(
     }
 
     @media (max-width: 768px) {
-
         .block-container {
             padding-left: 1rem;
             padding-right: 1rem;
+            padding-top: 1rem;
         }
 
         .hero {
@@ -331,11 +286,6 @@ st.markdown(
         .hero-title {
             font-size: 3.15rem;
         }
-
-        .top-row {
-            margin-bottom: 24px;
-        }
-
     }
 
     </style>
@@ -345,42 +295,21 @@ st.markdown(
 
 
 # =========================================================
-# HEADER
+# HERO
 # =========================================================
 
 st.markdown(
     """
-    <div class="top-row">
-        <div class="brand">TaxiFare</div>
-
-        <div class="status-pill">
-            <span class="status-dot"></span>
-            Live pricing
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-
-st.markdown(
-    """
     <div class="hero">
-
-        <div class="hero-kicker">
-            Smart ride estimate
-        </div>
-
+        <div class="hero-kicker">Smart ride estimate</div>
         <div class="hero-title">
             Know your fare<br>
             before you ride.
         </div>
-
         <div class="hero-subtitle">
             Enter your trip details, explore the route and get an instant
             AI-powered taxi fare estimate.
         </div>
-
     </div>
     """,
     unsafe_allow_html=True
@@ -423,7 +352,6 @@ st.write("")
 pickup_col, dropoff_col = st.columns(2)
 
 with pickup_col:
-
     st.subheader("Pickup")
 
     pickup_longitude = st.number_input(
@@ -439,7 +367,6 @@ with pickup_col:
     )
 
 with dropoff_col:
-
     st.subheader("Destination")
 
     dropoff_longitude = st.number_input(
@@ -493,16 +420,10 @@ duration_min = None
 route_points = []
 
 try:
-
-    route_response = requests.get(
-        route_url,
-        timeout=10
-    )
-
+    route_response = requests.get(route_url, timeout=10)
     route_response.raise_for_status()
 
     route = route_response.json()["routes"][0]
-
     distance_km = route["distance"] / 1000
     duration_min = route["duration"] / 60
 
@@ -510,7 +431,6 @@ try:
         [lat, lon]
         for lon, lat in route["geometry"]["coordinates"]
     ]
-
 except Exception:
     pass
 
@@ -524,49 +444,25 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-if st.button(
-    "Unlock fare prediction — $199.99",
-    type="primary"
-):
-
+if st.button("Unlock fare prediction — $199.99", type="primary"):
     with st.spinner("Calculating your fare..."):
-
         try:
-
-            response = requests.get(
-                url,
-                params=params,
-                timeout=15
-            )
-
+            response = requests.get(url, params=params, timeout=15)
             response.raise_for_status()
 
-            prediction = float(
-                response.json()["fare"]
-            )
+            prediction = float(response.json()["fare"])
 
             st.markdown(
                 f"""
                 <div class="fare-result">
-
-                    <div class="fare-label">
-                        Estimated fare
-                    </div>
-
-                    <div class="fare-value">
-                        ${prediction:.2f}
-                    </div>
-
+                    <div class="fare-label">Estimated fare</div>
+                    <div class="fare-value">${prediction:.2f}</div>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
-
         except Exception:
-
-            st.error(
-                "Unable to retrieve the fare prediction."
-            )
+            st.error("Unable to retrieve the fare prediction.")
 
 
 # =========================================================
@@ -578,58 +474,33 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-overview_col, map_col = st.columns(
-    [1, 2],
-    gap="large"
-)
-
+overview_col, map_col = st.columns([1, 2], gap="large")
 
 with overview_col:
-
     st.metric(
         "Distance",
-        f"{distance_km:.1f} km"
-        if distance_km is not None
-        else "—"
+        f"{distance_km:.1f} km" if distance_km is not None else "—"
     )
 
     st.metric(
         "Travel time",
-        f"{duration_min:.0f} min"
-        if duration_min is not None
-        else "—"
+        f"{duration_min:.0f} min" if duration_min is not None else "—"
     )
 
-    st.metric(
-        "Passengers",
-        passenger_count
-    )
-
+    st.metric("Passengers", passenger_count)
 
 with map_col:
-
-    center_lat = (
-        pickup_latitude + dropoff_latitude
-    ) / 2
-
-    center_lon = (
-        pickup_longitude + dropoff_longitude
-    ) / 2
+    center_lat = (pickup_latitude + dropoff_latitude) / 2
+    center_lon = (pickup_longitude + dropoff_longitude) / 2
 
     m = folium.Map(
-        location=[
-            center_lat,
-            center_lon
-        ],
+        location=[center_lat, center_lon],
         zoom_start=13,
         tiles="CartoDB positron"
     )
 
     folium.CircleMarker(
-        location=[
-            pickup_latitude,
-            pickup_longitude
-        ],
+        location=[pickup_latitude, pickup_longitude],
         radius=8,
         color="#171717",
         fill=True,
@@ -640,10 +511,7 @@ with map_col:
     ).add_to(m)
 
     folium.CircleMarker(
-        location=[
-            dropoff_latitude,
-            dropoff_longitude
-        ],
+        location=[dropoff_latitude, dropoff_longitude],
         radius=8,
         color="#171717",
         fill=True,
@@ -654,7 +522,6 @@ with map_col:
     ).add_to(m)
 
     if route_points:
-
         folium.PolyLine(
             route_points,
             color="#171717",
@@ -679,7 +546,7 @@ with map_col:
 st.markdown(
     """
     <div class="footer">
-        TaxiFare · AI-powered ride estimation
+        AI-powered ride estimation
     </div>
     """,
     unsafe_allow_html=True
