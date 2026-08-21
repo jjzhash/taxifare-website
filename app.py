@@ -436,34 +436,127 @@ except Exception:
 
 
 # =========================================================
-# PREDICTION
+# MINI GAME + PREDICTION
 # =========================================================
 
+import time
+import random
+
+
+if "game_started" not in st.session_state:
+    st.session_state.game_started = False
+
+if "game_unlocked" not in st.session_state:
+    st.session_state.game_unlocked = False
+
+if "game_ready_at" not in st.session_state:
+    st.session_state.game_ready_at = None
+
+
 st.markdown(
-    '<div class="section-label">Fare prediction</div>',
+    '<div class="section-label">Unlock your fare</div>',
     unsafe_allow_html=True
 )
 
-if st.button("Unlock fare prediction — $199.99", type="primary"):
-    with st.spinner("Calculating your fare..."):
-        try:
-            response = requests.get(url, params=params, timeout=15)
-            response.raise_for_status()
 
-            prediction = float(response.json()["fare"])
+if not st.session_state.game_started and not st.session_state.game_unlocked:
 
-            st.markdown(
-                f"""
-                <div class="fare-result">
-                    <div class="fare-label">Estimated fare</div>
-                    <div class="fare-value">${prediction:.2f}</div>
+    if st.button("Play to unlock prediction 🎮"):
+        st.session_state.game_started = True
+        st.session_state.game_ready_at = time.time() + random.uniform(2, 5)
+        st.rerun()
+
+
+elif st.session_state.game_started and not st.session_state.game_unlocked:
+
+    st.info("Wait for the green signal, then click as fast as possible.")
+
+    remaining = st.session_state.game_ready_at - time.time()
+
+    if remaining > 0:
+
+        st.warning("Not yet...")
+
+        time.sleep(min(remaining, 1))
+        st.rerun()
+
+    else:
+
+        start_time = time.time()
+
+        st.success("GO!")
+
+        if st.button("CLICK NOW! ⚡"):
+
+            reaction_time = time.time() - start_time
+
+            if reaction_time < 1.5:
+
+                st.session_state.game_unlocked = True
+                st.session_state.game_started = False
+
+                st.success(
+                    f"Unlocked! Reaction time: {reaction_time:.2f}s"
+                )
+
+                st.rerun()
+
+            else:
+
+                st.error(
+                    f"Too slow: {reaction_time:.2f}s. Try again."
+                )
+
+                st.session_state.game_started = False
+                st.session_state.game_ready_at = None
+
+                st.rerun()
+
+
+elif st.session_state.game_unlocked:
+
+    st.success("Prediction unlocked")
+
+    try:
+
+        response = requests.get(
+            url,
+            params=params,
+            timeout=15
+        )
+
+        response.raise_for_status()
+
+        prediction = float(
+            response.json()["fare"]
+        )
+
+        st.markdown(
+            f"""
+            <div class="fare-result">
+                <div class="fare-label">
+                    Estimated fare
                 </div>
-                """,
-                unsafe_allow_html=True
-            )
-        except Exception:
-            st.error("Unable to retrieve the fare prediction.")
 
+                <div class="fare-value">
+                    ${prediction:.2f}
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    except Exception:
+
+        st.error(
+            "Unable to retrieve the fare prediction."
+        )
+
+    if st.button("Play again"):
+        st.session_state.game_unlocked = False
+        st.session_state.game_started = False
+        st.session_state.game_ready_at = None
+        st.rerun()
 
 # =========================================================
 # TRIP OVERVIEW + MAP
