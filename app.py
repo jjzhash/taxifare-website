@@ -436,21 +436,14 @@ except Exception:
 
 
 # =========================================================
-# MINI GAME + PREDICTION
+# SNAKE GAME TO UNLOCK PREDICTION
 # =========================================================
 
-import time
-import random
+import streamlit.components.v1 as components
 
 
-if "game_started" not in st.session_state:
-    st.session_state.game_started = False
-
-if "game_unlocked" not in st.session_state:
-    st.session_state.game_unlocked = False
-
-if "game_ready_at" not in st.session_state:
-    st.session_state.game_ready_at = None
+if "snake_unlocked" not in st.session_state:
+    st.session_state.snake_unlocked = False
 
 
 st.markdown(
@@ -459,103 +452,393 @@ st.markdown(
 )
 
 
-if not st.session_state.game_started and not st.session_state.game_unlocked:
+if not st.session_state.snake_unlocked:
 
-    if st.button("Play to unlock prediction 🎮"):
-        st.session_state.game_started = True
-        st.session_state.game_ready_at = time.time() + random.uniform(2, 5)
-        st.rerun()
-
-
-elif st.session_state.game_started and not st.session_state.game_unlocked:
-
-    st.info("Wait for the green signal, then click as fast as possible.")
-
-    remaining = st.session_state.game_ready_at - time.time()
-
-    if remaining > 0:
-
-        st.warning("Not yet...")
-
-        time.sleep(min(remaining, 1))
-        st.rerun()
-
-    else:
-
-        start_time = time.time()
-
-        st.success("GO!")
-
-        if st.button("CLICK NOW! ⚡"):
-
-            reaction_time = time.time() - start_time
-
-            if reaction_time < 1.5:
-
-                st.session_state.game_unlocked = True
-                st.session_state.game_started = False
-
-                st.success(
-                    f"Unlocked! Reaction time: {reaction_time:.2f}s"
-                )
-
-                st.rerun()
-
-            else:
-
-                st.error(
-                    f"Too slow: {reaction_time:.2f}s. Try again."
-                )
-
-                st.session_state.game_started = False
-                st.session_state.game_ready_at = None
-
-                st.rerun()
-
-
-elif st.session_state.game_unlocked:
-
-    st.success("Prediction unlocked")
-
-    try:
-
-        response = requests.get(
-            url,
-            params=params,
-            timeout=15
-        )
-
-        response.raise_for_status()
-
-        prediction = float(
-            response.json()["fare"]
-        )
-
-        st.markdown(
-            f"""
-            <div class="fare-result">
-                <div class="fare-label">
-                    Estimated fare
-                </div>
-
-                <div class="fare-value">
-                    ${prediction:.2f}
-                </div>
+    st.markdown(
+        """
+        <div style="
+            background:white;
+            border:1px solid #E9E9E4;
+            border-radius:24px;
+            padding:24px;
+            margin-bottom:16px;
+        ">
+            <div style="
+                font-size:1.2rem;
+                font-weight:700;
+                color:#151515;
+                margin-bottom:6px;
+            ">
+                Snake challenge
             </div>
-            """,
-            unsafe_allow_html=True
-        )
 
-    except Exception:
+            <div style="
+                color:#7B7B76;
+                font-size:0.95rem;
+            ">
+                Reach a score of 5 to unlock your fare prediction.
+                Use the arrow keys to move.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-        st.error(
-            "Unable to retrieve the fare prediction."
-        )
 
-    if st.button("Play again"):
-        st.session_state.game_unlocked = False
-        st.session_state.game_started = False
-        st.session_state.game_ready_at = None
+    snake_html = """
+    <div id="snake-wrapper"
+         style="
+            width:100%;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+         ">
+
+        <div style="
+            width:100%;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:12px;
+        ">
+            <div style="
+                font-size:14px;
+                color:#777;
+            ">
+                Score
+            </div>
+
+            <div id="score"
+                 style="
+                    font-size:24px;
+                    font-weight:700;
+                    color:#151515;
+                 ">
+                0
+            </div>
+        </div>
+
+        <canvas
+            id="snakeCanvas"
+            width="500"
+            height="320"
+            style="
+                width:100%;
+                max-width:700px;
+                background:#171717;
+                border-radius:22px;
+                display:block;
+                outline:none;
+            "
+            tabindex="0">
+        </canvas>
+
+        <div id="message"
+             style="
+                margin-top:14px;
+                font-size:15px;
+                color:#777;
+                min-height:24px;
+             ">
+            Click the game, then use your arrow keys.
+        </div>
+
+        <button
+            id="restart"
+            style="
+                margin-top:12px;
+                width:100%;
+                max-width:700px;
+                min-height:48px;
+                border:none;
+                border-radius:16px;
+                background:#D8FF45;
+                color:#151515;
+                font-weight:700;
+                font-size:15px;
+                cursor:pointer;
+            ">
+            Restart
+        </button>
+
+    </div>
+
+    <script>
+        const canvas = document.getElementById("snakeCanvas");
+        const ctx = canvas.getContext("2d");
+        const scoreEl = document.getElementById("score");
+        const messageEl = document.getElementById("message");
+        const restartBtn = document.getElementById("restart");
+
+        const grid = 20;
+        const cols = canvas.width / grid;
+        const rows = canvas.height / grid;
+
+        let snake;
+        let food;
+        let dx;
+        let dy;
+        let nextDx;
+        let nextDy;
+        let score;
+        let gameOver;
+        let interval;
+
+        function randomFood() {
+            return {
+                x: Math.floor(Math.random() * cols),
+                y: Math.floor(Math.random() * rows)
+            };
+        }
+
+        function resetGame() {
+            snake = [
+                {x: 8, y: 8},
+                {x: 7, y: 8},
+                {x: 6, y: 8}
+            ];
+
+            food = randomFood();
+
+            dx = 1;
+            dy = 0;
+            nextDx = 1;
+            nextDy = 0;
+
+            score = 0;
+            gameOver = false;
+
+            scoreEl.textContent = score;
+            messageEl.textContent = "Reach 5 points to unlock the prediction.";
+
+            clearInterval(interval);
+            interval = setInterval(gameLoop, 110);
+
+            canvas.focus();
+        }
+
+        function drawRoundedRect(x, y, w, h, radius) {
+            ctx.beginPath();
+            ctx.roundRect(x, y, w, h, radius);
+            ctx.fill();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "#171717";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // food
+            ctx.fillStyle = "#D8FF45";
+            ctx.beginPath();
+            ctx.arc(
+                food.x * grid + grid / 2,
+                food.y * grid + grid / 2,
+                grid * 0.36,
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
+
+            // snake
+            snake.forEach((segment, index) => {
+                ctx.fillStyle = index === 0 ? "#FFFFFF" : "#E8E8E5";
+
+                drawRoundedRect(
+                    segment.x * grid + 2,
+                    segment.y * grid + 2,
+                    grid - 4,
+                    grid - 4,
+                    5
+                );
+            });
+        }
+
+        function collision(head) {
+            if (
+                head.x < 0 ||
+                head.x >= cols ||
+                head.y < 0 ||
+                head.y >= rows
+            ) {
+                return true;
+            }
+
+            for (let i = 1; i < snake.length; i++) {
+                if (
+                    head.x === snake[i].x &&
+                    head.y === snake[i].y
+                ) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        function unlockPrediction() {
+            clearInterval(interval);
+            gameOver = true;
+
+            messageEl.innerHTML =
+                "<strong style='color:#151515;'>Unlocked.</strong> Prediction ready.";
+
+            window.parent.postMessage(
+                {
+                    type: "streamlit:setComponentValue",
+                    value: "unlocked"
+                },
+                "*"
+            );
+        }
+
+        function gameLoop() {
+            if (gameOver) {
+                return;
+            }
+
+            dx = nextDx;
+            dy = nextDy;
+
+            const head = {
+                x: snake[0].x + dx,
+                y: snake[0].y + dy
+            };
+
+            if (collision(head)) {
+                clearInterval(interval);
+                gameOver = true;
+
+                messageEl.innerHTML =
+                    "<strong style='color:#151515;'>Game over.</strong> Hit restart to try again.";
+
+                return;
+            }
+
+            snake.unshift(head);
+
+            if (
+                head.x === food.x &&
+                head.y === food.y
+            ) {
+                score += 1;
+                scoreEl.textContent = score;
+                food = randomFood();
+
+                if (score >= 5) {
+                    draw();
+                    unlockPrediction();
+                    return;
+                }
+
+            } else {
+                snake.pop();
+            }
+
+            draw();
+        }
+
+        function changeDirection(event) {
+            const key = event.key;
+
+            if (
+                ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(key)
+            ) {
+                event.preventDefault();
+            }
+
+            if (key === "ArrowUp" && dy !== 1) {
+                nextDx = 0;
+                nextDy = -1;
+            }
+
+            if (key === "ArrowDown" && dy !== -1) {
+                nextDx = 0;
+                nextDy = 1;
+            }
+
+            if (key === "ArrowLeft" && dx !== 1) {
+                nextDx = -1;
+                nextDy = 0;
+            }
+
+            if (key === "ArrowRight" && dx !== -1) {
+                nextDx = 1;
+                nextDy = 0;
+            }
+        }
+
+        canvas.addEventListener("keydown", changeDirection);
+        window.addEventListener("keydown", changeDirection);
+
+        restartBtn.addEventListener("click", resetGame);
+
+        resetGame();
+        draw();
+    </script>
+    """
+
+
+    result = components.html(
+        snake_html,
+        height=470,
+        scrolling=False
+    )
+
+
+    # Fallback button because Streamlit components.html
+    # does not reliably send custom JS values back to Python.
+    st.caption("Reach 5 points, then unlock the fare below.")
+
+    if st.button("I reached 5 points — unlock prediction"):
+        st.session_state.snake_unlocked = True
+        st.rerun()
+
+
+else:
+
+    st.success("Fare prediction unlocked")
+
+    with st.spinner("Calculating your fare..."):
+
+        try:
+            response = requests.get(
+                url,
+                params=params,
+                timeout=15
+            )
+
+            response.raise_for_status()
+
+            prediction = float(
+                response.json()["fare"]
+            )
+
+            st.markdown(
+                f"""
+                <div class="fare-result">
+                    <div class="fare-label">
+                        Estimated fare
+                    </div>
+
+                    <div class="fare-value">
+                        ${prediction:.2f}
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        except Exception:
+            st.error(
+                "Unable to retrieve the fare prediction."
+            )
+
+
+    if st.button("Play Snake again"):
+        st.session_state.snake_unlocked = False
         st.rerun()
 
 # =========================================================
