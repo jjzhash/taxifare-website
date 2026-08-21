@@ -19,179 +19,227 @@ st.set_page_config(
 
 
 # =========================================================
-# REVOLUT-INSPIRED CSS
+# CSS
 # =========================================================
 
 st.markdown(
     """
     <style>
 
-    /* ---------- GLOBAL ---------- */
+    /* GLOBAL */
 
     .stApp {
-        background: #F5F5F7;
-    }
-
-    .block-container {
-        max-width: 1200px;
-        padding-top: 2rem;
-        padding-bottom: 5rem;
-    }
-
-    h1, h2, h3, p, div, span, label {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
-    /* ---------- HEADER ---------- */
-
-    .brand {
-        font-size: 1.15rem;
-        font-weight: 700;
-        letter-spacing: -0.03em;
-        margin-bottom: 3rem;
+        background: #F4F4F6;
         color: #111111;
     }
 
-    .hero-title {
-        font-size: clamp(2.8rem, 6vw, 5rem);
+    .block-container {
+        max-width: 1080px;
+        padding-top: 2rem;
+        padding-bottom: 4rem;
+    }
+
+    /* HIDE STREAMLIT CHROME */
+
+    #MainMenu {
+        visibility: hidden;
+    }
+
+    footer {
+        visibility: hidden;
+    }
+
+    /* HEADER */
+
+    .brand {
+        font-size: 1.1rem;
         font-weight: 700;
+        color: #111111;
+        margin-bottom: 3rem;
+    }
+
+    .hero-title {
+        font-size: clamp(3rem, 7vw, 5.2rem);
+        font-weight: 750;
         letter-spacing: -0.065em;
-        line-height: 0.95;
-        margin-bottom: 1rem;
-        color: #090909;
+        line-height: 0.93;
+        color: #050505;
+        margin-bottom: 1.4rem;
     }
 
     .hero-subtitle {
-        font-size: 1.15rem;
-        color: #707070;
-        max-width: 550px;
-        margin-bottom: 2.5rem;
+        font-size: 1.12rem;
+        color: #66666B;
+        max-width: 560px;
+        line-height: 1.5;
+        margin-bottom: 3rem;
     }
 
-
-    /* ---------- CARDS ---------- */
-
-    .revolut-card {
-        background: white;
-        border-radius: 28px;
-        padding: 28px;
-        margin-bottom: 20px;
-        border: 1px solid rgba(0,0,0,0.04);
-    }
-
-    .dark-card {
-        background: #0B0B0C;
-        color: white;
-        border-radius: 28px;
-        padding: 30px;
-        margin-top: 20px;
-        margin-bottom: 20px;
-    }
+    /* SECTION LABELS */
 
     .section-label {
-        color: #8A8A8E;
-        font-size: 0.80rem;
-        font-weight: 600;
+        color: #6D6D73;
+        font-size: 0.78rem;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
-        margin-bottom: 8px;
+        letter-spacing: 0.09em;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
     }
 
+    /* HEADINGS */
 
-    /* ---------- METRICS ---------- */
+    h1, h2, h3 {
+        color: #111111 !important;
+    }
+
+    h3 {
+        font-size: 1.3rem !important;
+        margin-top: 0.6rem !important;
+        margin-bottom: 0.8rem !important;
+    }
+
+    /* STREAMLIT LABELS */
+
+    label,
+    [data-testid="stWidgetLabel"],
+    [data-testid="stWidgetLabel"] p {
+        color: #55555A !important;
+        font-weight: 500 !important;
+    }
+
+    /* INPUTS */
+
+    [data-baseweb="input"] {
+        background: #FFFFFF !important;
+        border-radius: 16px !important;
+        border: 1px solid #E2E2E6 !important;
+        min-height: 52px;
+    }
+
+    [data-baseweb="input"] input {
+        color: #111111 !important;
+        background: transparent !important;
+    }
+
+    [data-testid="stNumberInput"] button {
+        color: #111111 !important;
+        background: #FFFFFF !important;
+        border-color: #E2E2E6 !important;
+    }
+
+    /* DATE + TIME */
+
+    [data-testid="stDateInput"] input,
+    [data-testid="stTimeInput"] input {
+        color: #111111 !important;
+        background: #FFFFFF !important;
+    }
+
+    /* METRICS */
 
     [data-testid="stMetric"] {
-        background: white;
-        padding: 22px;
-        border-radius: 22px;
-        border: 1px solid rgba(0,0,0,0.04);
+        background: #FFFFFF;
+        padding: 24px;
+        border-radius: 24px;
+        border: 1px solid #E7E7EA;
+        min-height: 118px;
     }
 
     [data-testid="stMetricLabel"] {
-        color: #8A8A8E;
+        color: #717178 !important;
     }
 
     [data-testid="stMetricValue"] {
-        font-size: 2rem;
-        font-weight: 650;
+        color: #111111 !important;
+        font-size: 2rem !important;
+        font-weight: 700 !important;
         letter-spacing: -0.04em;
     }
 
-
-    /* ---------- INPUTS ---------- */
-
-    div[data-baseweb="input"] {
-        border-radius: 16px;
-        background: white;
-    }
-
-    div[data-baseweb="select"] {
-        border-radius: 16px;
-    }
-
-    [data-testid="stNumberInput"] input {
-        border-radius: 16px;
-    }
-
-    [data-testid="stDateInput"] input {
-        border-radius: 16px;
-    }
-
-
-    /* ---------- BUTTON ---------- */
+    /* BUTTON */
 
     div.stButton > button {
         width: 100%;
-        min-height: 58px;
+        min-height: 60px;
         border-radius: 18px;
         border: none;
-        background: #0B0B0C;
-        color: white;
+        background: #111111;
+        color: #FFFFFF;
         font-size: 1rem;
         font-weight: 650;
-        transition: all 0.2s ease;
     }
 
     div.stButton > button:hover {
-        background: #272729;
-        color: white;
-        transform: translateY(-1px);
+        background: #2A2A2D;
+        color: #FFFFFF;
+        border: none;
     }
 
-    div.stButton > button:active {
-        transform: scale(0.99);
+    /* DARK PREMIUM CARD */
+
+    .dark-card {
+        background: #0D0D0F;
+        color: #FFFFFF;
+        border-radius: 28px;
+        padding: 30px;
+        margin-top: 26px;
+        margin-bottom: 18px;
     }
 
-
-    /* ---------- FOLIUM ---------- */
-
-    iframe {
-        border-radius: 26px !important;
+    .dark-card-label {
+        color: #A7A7AD;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
     }
-
-
-    /* ---------- PRICE ---------- */
 
     .price {
+        color: #FFFFFF;
         font-size: 4rem;
-        font-weight: 700;
+        font-weight: 750;
         letter-spacing: -0.06em;
         line-height: 1;
-        color: white;
-        margin-top: 8px;
-    }
-
-    .price-description {
-        color: #A1A1A6;
         margin-top: 10px;
     }
 
+    .price-description {
+        color: #B3B3B8;
+        font-size: 1rem;
+        margin-top: 12px;
+    }
 
-    /* ---------- SMALL TEXT ---------- */
+    /* MAP */
 
-    .muted {
-        color: #8A8A8E;
-        font-size: 0.9rem;
+    iframe {
+        border-radius: 28px !important;
+        border: 1px solid #E7E7EA !important;
+    }
+
+    /* SPACING BETWEEN COLUMNS */
+
+    [data-testid="column"] {
+        padding-left: 0.4rem;
+        padding-right: 0.4rem;
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 768px) {
+
+        .block-container {
+            padding-left: 1.1rem;
+            padding-right: 1.1rem;
+        }
+
+        .hero-title {
+            font-size: 3.3rem;
+        }
+
+        .price {
+            font-size: 3rem;
+        }
     }
 
     </style>
@@ -217,8 +265,7 @@ st.markdown(
     </div>
 
     <div class="hero-subtitle">
-        Plan your journey, visualize your route and instantly estimate
-        your taxi fare.
+        Plan your journey, visualize your route and instantly estimate your taxi fare.
     </div>
     """,
     unsafe_allow_html=True
@@ -226,7 +273,7 @@ st.markdown(
 
 
 # =========================================================
-# TRIP PARAMETERS
+# JOURNEY
 # =========================================================
 
 st.markdown(
@@ -237,19 +284,12 @@ st.markdown(
 col_date, col_time, col_people = st.columns(3)
 
 with col_date:
-
-    pickup_date = st.date_input(
-        "Date"
-    )
+    pickup_date = st.date_input("Date")
 
 with col_time:
-
-    pickup_time = st.time_input(
-        "Time"
-    )
+    pickup_time = st.time_input("Time")
 
 with col_people:
-
     passenger_count = st.number_input(
         "Passengers",
         min_value=1,
@@ -262,52 +302,43 @@ with col_people:
 st.write("")
 
 
+# =========================================================
+# LOCATIONS
+# =========================================================
+
 pickup_col, dropoff_col = st.columns(2)
-
-
-# =========================================================
-# PICKUP
-# =========================================================
 
 with pickup_col:
 
-    st.markdown("### Pickup")
+    st.subheader("Pickup")
 
     pickup_longitude = st.number_input(
-        "Longitude",
+        "Pickup longitude",
         value=-73.950655,
-        format="%.6f",
-        key="pickup_lon"
+        format="%.6f"
     )
 
     pickup_latitude = st.number_input(
-        "Latitude",
+        "Pickup latitude",
         value=40.783282,
-        format="%.6f",
-        key="pickup_lat"
+        format="%.6f"
     )
 
-
-# =========================================================
-# DROPOFF
-# =========================================================
 
 with dropoff_col:
 
-    st.markdown("### Destination")
+    st.subheader("Destination")
 
     dropoff_longitude = st.number_input(
-        "Longitude",
+        "Dropoff longitude",
         value=-73.984365,
-        format="%.6f",
-        key="dropoff_lon"
+        format="%.6f"
     )
 
     dropoff_latitude = st.number_input(
-        "Latitude",
+        "Dropoff latitude",
         value=40.769802,
-        format="%.6f",
-        key="dropoff_lat"
+        format="%.6f"
     )
 
 
@@ -318,7 +349,7 @@ pickup_datetime = datetime.combine(
 
 
 # =========================================================
-# ROUTING
+# ROUTE
 # =========================================================
 
 route_url = (
@@ -332,7 +363,6 @@ distance_km = None
 duration_min = None
 route_points = []
 
-
 try:
 
     route_response = requests.get(
@@ -342,75 +372,48 @@ try:
 
     route_response.raise_for_status()
 
-    route_data = route_response.json()
-
-    route = route_data["routes"][0]
+    route = route_response.json()["routes"][0]
 
     distance_km = route["distance"] / 1000
     duration_min = route["duration"] / 60
 
-    coordinates = route["geometry"]["coordinates"]
-
     route_points = [
-        [latitude, longitude]
-        for longitude, latitude in coordinates
+        [lat, lon]
+        for lon, lat in route["geometry"]["coordinates"]
     ]
 
 except Exception:
-
-    st.warning("Route information is temporarily unavailable.")
+    pass
 
 
 # =========================================================
-# JOURNEY SUMMARY
+# TRIP OVERVIEW
 # =========================================================
 
-st.write("")
 st.markdown(
     '<div class="section-label">Trip overview</div>',
     unsafe_allow_html=True
 )
 
-
 metric1, metric2, metric3 = st.columns(3)
 
-
 with metric1:
-
-    if distance_km is not None:
-
-        st.metric(
-            "Distance",
-            f"{distance_km:.1f} km"
-        )
-
-    else:
-
-        st.metric(
-            "Distance",
-            "—"
-        )
-
+    st.metric(
+        "Distance",
+        f"{distance_km:.1f} km"
+        if distance_km is not None
+        else "—"
+    )
 
 with metric2:
-
-    if duration_min is not None:
-
-        st.metric(
-            "Travel time",
-            f"{duration_min:.0f} min"
-        )
-
-    else:
-
-        st.metric(
-            "Travel time",
-            "—"
-        )
-
+    st.metric(
+        "Travel time",
+        f"{duration_min:.0f} min"
+        if duration_min is not None
+        else "—"
+    )
 
 with metric3:
-
     st.metric(
         "Passengers",
         passenger_count
@@ -442,29 +445,27 @@ m = folium.Map(
 )
 
 
-# Pickup marker
 folium.CircleMarker(
     location=[
         pickup_latitude,
         pickup_longitude
     ],
     radius=9,
-    color="#000000",
+    color="#111111",
     fill=True,
-    fill_color="#000000",
+    fill_color="#111111",
     fill_opacity=1,
     tooltip="Pickup"
 ).add_to(m)
 
 
-# Destination marker
 folium.CircleMarker(
     location=[
         dropoff_latitude,
         dropoff_longitude
     ],
     radius=9,
-    color="#000000",
+    color="#111111",
     fill=True,
     fill_color="#FFFFFF",
     fill_opacity=1,
@@ -473,7 +474,6 @@ folium.CircleMarker(
 ).add_to(m)
 
 
-# Route
 if route_points:
 
     folium.PolyLine(
@@ -489,53 +489,36 @@ if route_points:
 st_folium(
     m,
     width=None,
-    height=520,
+    height=500,
     returned_objects=[]
 )
 
 
 # =========================================================
-# TAXIFARE API
+# PREDICTION API
 # =========================================================
 
 url = "https://taxifare.lewagon.ai/predict"
 
 params = {
-
     "pickup_datetime": pickup_datetime,
-
-    "pickup_longitude":
-        pickup_longitude,
-
-    "pickup_latitude":
-        pickup_latitude,
-
-    "dropoff_longitude":
-        dropoff_longitude,
-
-    "dropoff_latitude":
-        dropoff_latitude,
-
-    "passenger_count":
-        passenger_count
+    "pickup_longitude": pickup_longitude,
+    "pickup_latitude": pickup_latitude,
+    "dropoff_longitude": dropoff_longitude,
+    "dropoff_latitude": dropoff_latitude,
+    "passenger_count": passenger_count
 }
 
 
 # =========================================================
-# PREMIUM CARD
+# PREMIUM
 # =========================================================
 
 st.markdown(
     """
     <div class="dark-card">
 
-        <div style="
-            color:#A1A1A6;
-            font-size:0.8rem;
-            font-weight:600;
-            letter-spacing:0.08em;
-            text-transform:uppercase;
-        ">
+        <div class="dark-card-label">
             TaxiFare Premium
         </div>
 
@@ -557,14 +540,9 @@ st.markdown(
 # PREDICTION
 # =========================================================
 
-if st.button(
-    "Unlock fare prediction — $199.99",
-    type="primary"
-):
+if st.button("Unlock fare prediction — $199.99"):
 
-    with st.spinner(
-        "Calculating your fare..."
-    ):
+    with st.spinner("Calculating your fare..."):
 
         try:
 
@@ -584,12 +562,7 @@ if st.button(
                 f"""
                 <div class="dark-card">
 
-                    <div style="
-                        color:#A1A1A6;
-                        font-size:0.8rem;
-                        text-transform:uppercase;
-                        letter-spacing:0.08em;
-                    ">
+                    <div class="dark-card-label">
                         Estimated fare
                     </div>
 
@@ -606,20 +579,10 @@ if st.button(
                 unsafe_allow_html=True
             )
 
-        except requests.RequestException:
+        except Exception:
 
             st.error(
-                "Unable to connect to the prediction service."
-            )
-
-        except (
-            KeyError,
-            TypeError,
-            ValueError
-        ):
-
-            st.error(
-                "The prediction service returned an unexpected response."
+                "Unable to retrieve the fare prediction."
             )
 
 
@@ -627,14 +590,13 @@ if st.button(
 # FOOTER
 # =========================================================
 
-st.write("")
-
 st.markdown(
     """
     <div style="
         text-align:center;
-        color:#9A9A9A;
-        padding-top:40px;
+        color:#88888E;
+        padding-top:50px;
+        padding-bottom:20px;
         font-size:0.8rem;
     ">
         TaxiFare · AI-powered ride estimation
