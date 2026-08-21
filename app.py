@@ -27,7 +27,13 @@ st.markdown(
     <style>
 
     .stApp {
-        background: #F4F4F6;
+        background:
+            radial-gradient(
+                circle at 90% 5%,
+                rgba(185, 195, 255, 0.28),
+                transparent 28%
+            ),
+            #F4F4F6;
         color: #111111;
     }
 
@@ -45,12 +51,41 @@ st.markdown(
         visibility: hidden;
     }
 
+    /* TOP HEADER */
+
+    [data-testid="stHeader"] {
+        background: linear-gradient(
+            110deg,
+            #F4F4F6 0%,
+            #F7F7FA 40%,
+            #EEEFFF 75%,
+            #E4E8FF 100%
+        ) !important;
+        border-bottom: none !important;
+    }
+
+    [data-testid="stDecoration"] {
+        display: none !important;
+    }
+
+    [data-testid="stToolbar"] {
+        background: transparent !important;
+    }
+
+    [data-testid="stToolbar"] button {
+        color: #111111 !important;
+    }
+
+    /* BRAND */
+
     .brand {
         font-size: 1.1rem;
         font-weight: 700;
         color: #111111;
         margin-bottom: 3rem;
     }
+
+    /* HERO */
 
     .hero-title {
         font-size: clamp(3rem, 7vw, 5.2rem);
@@ -69,6 +104,8 @@ st.markdown(
         margin-bottom: 3rem;
     }
 
+    /* SECTION LABEL */
+
     .section-label {
         color: #6D6D73;
         font-size: 0.78rem;
@@ -78,6 +115,8 @@ st.markdown(
         margin-top: 1.5rem;
         margin-bottom: 1rem;
     }
+
+    /* TITLES */
 
     h1, h2, h3 {
         color: #111111 !important;
@@ -89,12 +128,16 @@ st.markdown(
         margin-bottom: 0.8rem !important;
     }
 
+    /* LABELS */
+
     label,
     [data-testid="stWidgetLabel"],
     [data-testid="stWidgetLabel"] p {
         color: #55555A !important;
         font-weight: 500 !important;
     }
+
+    /* INPUTS */
 
     [data-baseweb="input"] {
         background: #FFFFFF !important;
@@ -120,6 +163,8 @@ st.markdown(
         background: #FFFFFF !important;
     }
 
+    /* METRICS */
+
     [data-testid="stMetric"] {
         background: #FFFFFF;
         padding: 22px;
@@ -140,12 +185,18 @@ st.markdown(
         letter-spacing: -0.04em;
     }
 
+    /* BUTTON */
+
     div.stButton > button {
         width: 100%;
         min-height: 64px;
         border-radius: 20px;
         border: none;
-        background: #111111;
+        background: linear-gradient(
+            90deg,
+            #111111 0%,
+            #27272A 100%
+        );
         color: #FFFFFF;
         font-size: 1.05rem;
         font-weight: 700;
@@ -155,15 +206,17 @@ st.markdown(
     }
 
     div.stButton > button:hover {
-        background: #2A2A2D;
+        background: linear-gradient(
+            90deg,
+            #232326 0%,
+            #3A3A3E 100%
+        );
         color: #FFFFFF;
         transform: translateY(-1px);
         border: none;
     }
 
-    div.stButton > button:active {
-        transform: scale(0.99);
-    }
+    /* MAP */
 
     iframe {
         border-radius: 28px !important;
@@ -175,8 +228,14 @@ st.markdown(
         padding-right: 0.35rem;
     }
 
+    /* FARE RESULT */
+
     .fare-result {
-        background: #111111;
+        background: linear-gradient(
+            135deg,
+            #111111 0%,
+            #25252A 100%
+        );
         color: white;
         border-radius: 24px;
         padding: 24px;
@@ -268,7 +327,6 @@ with col_people:
         step=1
     )
 
-
 st.write("")
 
 
@@ -293,7 +351,6 @@ with pickup_col:
         value=40.783282,
         format="%.6f"
     )
-
 
 with dropoff_col:
 
@@ -373,7 +430,7 @@ except Exception:
 
 
 # =========================================================
-# PREDICTION BUTTON
+# PREDICTION
 # =========================================================
 
 st.markdown(
@@ -440,11 +497,6 @@ overview_col, map_col = st.columns(
     gap="large"
 )
 
-
-# -------------------------
-# LEFT : METRICS
-# -------------------------
-
 with overview_col:
 
     st.metric(
@@ -467,10 +519,6 @@ with overview_col:
     )
 
 
-# -------------------------
-# RIGHT : MAP
-# -------------------------
-
 with map_col:
 
     center_lat = (
@@ -481,7 +529,6 @@ with map_col:
         pickup_longitude + dropoff_longitude
     ) / 2
 
-
     m = folium.Map(
         location=[
             center_lat,
@@ -490,7 +537,6 @@ with map_col:
         zoom_start=13,
         tiles="CartoDB positron"
     )
-
 
     folium.CircleMarker(
         location=[
@@ -504,7 +550,6 @@ with map_col:
         fill_opacity=1,
         tooltip="Pickup"
     ).add_to(m)
-
 
     folium.CircleMarker(
         location=[
@@ -520,7 +565,6 @@ with map_col:
         tooltip="Destination"
     ).add_to(m)
 
-
     if route_points:
 
         folium.PolyLine(
@@ -531,7 +575,6 @@ with map_col:
         ).add_to(m)
 
         m.fit_bounds(route_points)
-
 
     st_folium(
         m,
