@@ -26,8 +26,6 @@ st.markdown(
     """
     <style>
 
-    /* GLOBAL */
-
     .stApp {
         background: #F4F4F6;
         color: #111111;
@@ -39,8 +37,6 @@ st.markdown(
         padding-bottom: 4rem;
     }
 
-    /* HIDE STREAMLIT CHROME */
-
     #MainMenu {
         visibility: hidden;
     }
@@ -48,8 +44,6 @@ st.markdown(
     footer {
         visibility: hidden;
     }
-
-    /* HEADER */
 
     .brand {
         font-size: 1.1rem;
@@ -75,8 +69,6 @@ st.markdown(
         margin-bottom: 3rem;
     }
 
-    /* SECTION LABELS */
-
     .section-label {
         color: #6D6D73;
         font-size: 0.78rem;
@@ -86,8 +78,6 @@ st.markdown(
         margin-top: 1.5rem;
         margin-bottom: 1rem;
     }
-
-    /* HEADINGS */
 
     h1, h2, h3 {
         color: #111111 !important;
@@ -99,16 +89,12 @@ st.markdown(
         margin-bottom: 0.8rem !important;
     }
 
-    /* STREAMLIT LABELS */
-
     label,
     [data-testid="stWidgetLabel"],
     [data-testid="stWidgetLabel"] p {
         color: #55555A !important;
         font-weight: 500 !important;
     }
-
-    /* INPUTS */
 
     [data-baseweb="input"] {
         background: #FFFFFF !important;
@@ -128,22 +114,19 @@ st.markdown(
         border-color: #E2E2E6 !important;
     }
 
-    /* DATE + TIME */
-
     [data-testid="stDateInput"] input,
     [data-testid="stTimeInput"] input {
         color: #111111 !important;
         background: #FFFFFF !important;
     }
 
-    /* METRICS */
-
     [data-testid="stMetric"] {
         background: #FFFFFF;
-        padding: 24px;
-        border-radius: 24px;
+        padding: 22px;
+        border-radius: 22px;
         border: 1px solid #E7E7EA;
-        min-height: 118px;
+        min-height: 105px;
+        margin-bottom: 12px;
     }
 
     [data-testid="stMetricLabel"] {
@@ -152,79 +135,69 @@ st.markdown(
 
     [data-testid="stMetricValue"] {
         color: #111111 !important;
-        font-size: 2rem !important;
+        font-size: 1.8rem !important;
         font-weight: 700 !important;
         letter-spacing: -0.04em;
     }
 
-    /* BUTTON */
-
     div.stButton > button {
         width: 100%;
-        min-height: 60px;
-        border-radius: 18px;
+        min-height: 64px;
+        border-radius: 20px;
         border: none;
         background: #111111;
         color: #FFFFFF;
-        font-size: 1rem;
-        font-weight: 650;
+        font-size: 1.05rem;
+        font-weight: 700;
+        margin-top: 10px;
+        margin-bottom: 24px;
+        transition: all 0.2s ease;
     }
 
     div.stButton > button:hover {
         background: #2A2A2D;
         color: #FFFFFF;
+        transform: translateY(-1px);
         border: none;
     }
 
-    /* DARK PREMIUM CARD */
-
-    .dark-card {
-        background: #0D0D0F;
-        color: #FFFFFF;
-        border-radius: 28px;
-        padding: 30px;
-        margin-top: 26px;
-        margin-bottom: 18px;
+    div.stButton > button:active {
+        transform: scale(0.99);
     }
-
-    .dark-card-label {
-        color: #A7A7AD;
-        font-size: 0.78rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-    }
-
-    .price {
-        color: #FFFFFF;
-        font-size: 4rem;
-        font-weight: 750;
-        letter-spacing: -0.06em;
-        line-height: 1;
-        margin-top: 10px;
-    }
-
-    .price-description {
-        color: #B3B3B8;
-        font-size: 1rem;
-        margin-top: 12px;
-    }
-
-    /* MAP */
 
     iframe {
         border-radius: 28px !important;
         border: 1px solid #E7E7EA !important;
     }
 
-    /* SPACING BETWEEN COLUMNS */
-
     [data-testid="column"] {
-        padding-left: 0.4rem;
-        padding-right: 0.4rem;
+        padding-left: 0.35rem;
+        padding-right: 0.35rem;
     }
 
-    /* MOBILE */
+    .fare-result {
+        background: #111111;
+        color: white;
+        border-radius: 24px;
+        padding: 24px;
+        margin-bottom: 20px;
+    }
+
+    .fare-label {
+        color: #A7A7AD;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .fare-value {
+        color: #FFFFFF;
+        font-size: 3.2rem;
+        font-weight: 750;
+        letter-spacing: -0.05em;
+        margin-top: 6px;
+    }
 
     @media (max-width: 768px) {
 
@@ -237,9 +210,6 @@ st.markdown(
             font-size: 3.3rem;
         }
 
-        .price {
-            font-size: 3rem;
-        }
     }
 
     </style>
@@ -349,6 +319,22 @@ pickup_datetime = datetime.combine(
 
 
 # =========================================================
+# API PARAMS
+# =========================================================
+
+url = "https://taxifare.lewagon.ai/predict"
+
+params = {
+    "pickup_datetime": pickup_datetime,
+    "pickup_longitude": pickup_longitude,
+    "pickup_latitude": pickup_latitude,
+    "dropoff_longitude": dropoff_longitude,
+    "dropoff_latitude": dropoff_latitude,
+    "passenger_count": passenger_count
+}
+
+
+# =========================================================
 # ROUTE
 # =========================================================
 
@@ -387,160 +373,18 @@ except Exception:
 
 
 # =========================================================
-# TRIP OVERVIEW
+# PREDICTION BUTTON
 # =========================================================
 
 st.markdown(
-    '<div class="section-label">Trip overview</div>',
+    '<div class="section-label">Fare prediction</div>',
     unsafe_allow_html=True
 )
 
-metric1, metric2, metric3 = st.columns(3)
-
-with metric1:
-    st.metric(
-        "Distance",
-        f"{distance_km:.1f} km"
-        if distance_km is not None
-        else "—"
-    )
-
-with metric2:
-    st.metric(
-        "Travel time",
-        f"{duration_min:.0f} min"
-        if duration_min is not None
-        else "—"
-    )
-
-with metric3:
-    st.metric(
-        "Passengers",
-        passenger_count
-    )
-
-
-# =========================================================
-# MAP
-# =========================================================
-
-st.write("")
-
-center_lat = (
-    pickup_latitude + dropoff_latitude
-) / 2
-
-center_lon = (
-    pickup_longitude + dropoff_longitude
-) / 2
-
-
-m = folium.Map(
-    location=[
-        center_lat,
-        center_lon
-    ],
-    zoom_start=13,
-    tiles="CartoDB positron"
-)
-
-
-folium.CircleMarker(
-    location=[
-        pickup_latitude,
-        pickup_longitude
-    ],
-    radius=9,
-    color="#111111",
-    fill=True,
-    fill_color="#111111",
-    fill_opacity=1,
-    tooltip="Pickup"
-).add_to(m)
-
-
-folium.CircleMarker(
-    location=[
-        dropoff_latitude,
-        dropoff_longitude
-    ],
-    radius=9,
-    color="#111111",
-    fill=True,
-    fill_color="#FFFFFF",
-    fill_opacity=1,
-    weight=3,
-    tooltip="Destination"
-).add_to(m)
-
-
-if route_points:
-
-    folium.PolyLine(
-        route_points,
-        color="#111111",
-        weight=6,
-        opacity=0.9
-    ).add_to(m)
-
-    m.fit_bounds(route_points)
-
-
-st_folium(
-    m,
-    width=None,
-    height=500,
-    returned_objects=[]
-)
-
-
-# =========================================================
-# PREDICTION API
-# =========================================================
-
-url = "https://taxifare.lewagon.ai/predict"
-
-params = {
-    "pickup_datetime": pickup_datetime,
-    "pickup_longitude": pickup_longitude,
-    "pickup_latitude": pickup_latitude,
-    "dropoff_longitude": dropoff_longitude,
-    "dropoff_latitude": dropoff_latitude,
-    "passenger_count": passenger_count
-}
-
-
-# =========================================================
-# PREMIUM
-# =========================================================
-
-st.markdown(
-    """
-    <div class="dark-card">
-
-        <div class="dark-card-label">
-            TaxiFare Premium
-        </div>
-
-        <div class="price">
-            $199.99
-        </div>
-
-        <div class="price-description">
-            Unlock your AI-powered fare prediction instantly.
-        </div>
-
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-
-# =========================================================
-# PREDICTION
-# =========================================================
-
-if st.button("Unlock fare prediction — $199.99"):
+if st.button(
+    "Unlock fare prediction — $199.99",
+    type="primary"
+):
 
     with st.spinner("Calculating your fare..."):
 
@@ -560,18 +404,14 @@ if st.button("Unlock fare prediction — $199.99"):
 
             st.markdown(
                 f"""
-                <div class="dark-card">
+                <div class="fare-result">
 
-                    <div class="dark-card-label">
+                    <div class="fare-label">
                         Estimated fare
                     </div>
 
-                    <div class="price">
+                    <div class="fare-value">
                         ${prediction:.2f}
-                    </div>
-
-                    <div class="price-description">
-                        Estimated price for your selected journey.
                     </div>
 
                 </div>
@@ -584,6 +424,121 @@ if st.button("Unlock fare prediction — $199.99"):
             st.error(
                 "Unable to retrieve the fare prediction."
             )
+
+
+# =========================================================
+# TRIP OVERVIEW + MAP
+# =========================================================
+
+st.markdown(
+    '<div class="section-label">Trip overview</div>',
+    unsafe_allow_html=True
+)
+
+overview_col, map_col = st.columns(
+    [1, 2],
+    gap="large"
+)
+
+
+# -------------------------
+# LEFT : METRICS
+# -------------------------
+
+with overview_col:
+
+    st.metric(
+        "Distance",
+        f"{distance_km:.1f} km"
+        if distance_km is not None
+        else "—"
+    )
+
+    st.metric(
+        "Travel time",
+        f"{duration_min:.0f} min"
+        if duration_min is not None
+        else "—"
+    )
+
+    st.metric(
+        "Passengers",
+        passenger_count
+    )
+
+
+# -------------------------
+# RIGHT : MAP
+# -------------------------
+
+with map_col:
+
+    center_lat = (
+        pickup_latitude + dropoff_latitude
+    ) / 2
+
+    center_lon = (
+        pickup_longitude + dropoff_longitude
+    ) / 2
+
+
+    m = folium.Map(
+        location=[
+            center_lat,
+            center_lon
+        ],
+        zoom_start=13,
+        tiles="CartoDB positron"
+    )
+
+
+    folium.CircleMarker(
+        location=[
+            pickup_latitude,
+            pickup_longitude
+        ],
+        radius=8,
+        color="#111111",
+        fill=True,
+        fill_color="#111111",
+        fill_opacity=1,
+        tooltip="Pickup"
+    ).add_to(m)
+
+
+    folium.CircleMarker(
+        location=[
+            dropoff_latitude,
+            dropoff_longitude
+        ],
+        radius=8,
+        color="#111111",
+        fill=True,
+        fill_color="#FFFFFF",
+        fill_opacity=1,
+        weight=3,
+        tooltip="Destination"
+    ).add_to(m)
+
+
+    if route_points:
+
+        folium.PolyLine(
+            route_points,
+            color="#111111",
+            weight=5,
+            opacity=0.9
+        ).add_to(m)
+
+        m.fit_bounds(route_points)
+
+
+    st_folium(
+        m,
+        width=None,
+        height=380,
+        returned_objects=[]
+    )
 
 
 # =========================================================
