@@ -52,8 +52,10 @@ params = {
 }
 
 
-if st.button("Predict"):
+st.markdown("### Premium prediction")
+st.write("Unlock your taxi fare prediction for **$199.99**.")
 
+if st.button("Unlock prediction — $199.99"):
     response = requests.get(
         url,
         params=params
