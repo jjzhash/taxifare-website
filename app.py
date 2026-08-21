@@ -11,7 +11,7 @@ from streamlit_folium import st_folium
 # =========================================================
 
 st.set_page_config(
-    page_title="",
+    page_title="TaxiFare",
     page_icon="🚕",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -19,26 +19,37 @@ st.set_page_config(
 
 
 # =========================================================
-# CSS
+# CSS — SUMERIA INSPIRED
 # =========================================================
 
 st.markdown(
     """
     <style>
 
+    :root {
+        --bg: #F7F7F4;
+        --card: #FFFFFF;
+        --text: #151515;
+        --muted: #7B7B76;
+        --border: #E9E9E4;
+        --accent: #D8FF45;
+        --accent-soft: #F0FFC0;
+        --dark: #171717;
+    }
+
     .stApp {
         background:
             radial-gradient(
-                circle at 90% 5%,
-                rgba(185, 195, 255, 0.28),
+                circle at 85% 0%,
+                rgba(216,255,69,0.22),
                 transparent 28%
             ),
-            #F4F4F6;
-        color: #111111;
+            var(--bg);
+        color: var(--text);
     }
 
     .block-container {
-        max-width: 1080px;
+        max-width: 1120px;
         padding-top: 2rem;
         padding-bottom: 4rem;
     }
@@ -51,17 +62,10 @@ st.markdown(
         visibility: hidden;
     }
 
-    /* TOP HEADER */
-
     [data-testid="stHeader"] {
-        background: linear-gradient(
-            110deg,
-            #F4F4F6 0%,
-            #F7F7FA 40%,
-            #EEEFFF 75%,
-            #E4E8FF 100%
-        ) !important;
-        border-bottom: none !important;
+        background: rgba(247,247,244,0.88) !important;
+        backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(0,0,0,0.04);
     }
 
     [data-testid="stDecoration"] {
@@ -72,201 +76,264 @@ st.markdown(
         background: transparent !important;
     }
 
-    [data-testid="stToolbar"] button {
-        color: #111111 !important;
-    }
+    /* HEADER */
 
-    /* BRAND */
+    .top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 42px;
+    }
 
     .brand {
         font-size: 1.1rem;
-        font-weight: 700;
-        color: #111111;
-        margin-bottom: 3rem;
+        font-weight: 750;
+        color: var(--text);
+        letter-spacing: -0.03em;
     }
 
-    /* HERO */
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 8px 13px;
+        font-size: 0.82rem;
+        color: #55554F;
+    }
+
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--accent);
+        border-radius: 50%;
+    }
+
+    .hero {
+        background: var(--card);
+        border-radius: 32px;
+        border: 1px solid var(--border);
+        padding: 40px;
+        margin-bottom: 26px;
+    }
+
+    .hero-kicker {
+        display: inline-block;
+        background: var(--accent-soft);
+        color: #384000;
+        border-radius: 999px;
+        padding: 7px 12px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        margin-bottom: 18px;
+    }
 
     .hero-title {
-        font-size: clamp(3rem, 7vw, 5.2rem);
-        font-weight: 750;
+        font-size: clamp(3rem, 7vw, 5rem);
+        font-weight: 760;
         letter-spacing: -0.065em;
-        line-height: 0.93;
-        color: #050505;
-        margin-bottom: 1.4rem;
+        line-height: 0.95;
+        color: var(--text);
+        margin-bottom: 18px;
     }
 
     .hero-subtitle {
-        font-size: 1.12rem;
-        color: #66666B;
-        max-width: 560px;
-        line-height: 1.5;
-        margin-bottom: 3rem;
+        max-width: 580px;
+        color: var(--muted);
+        font-size: 1.08rem;
+        line-height: 1.55;
     }
 
-    /* SECTION LABEL */
+    /* SECTION */
 
     .section-label {
-        color: #6D6D73;
-        font-size: 0.78rem;
+        color: #81817B;
+        font-size: 0.76rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.09em;
-        margin-top: 1.5rem;
-        margin-bottom: 1rem;
+        letter-spacing: 0.08em;
+        margin-top: 1.4rem;
+        margin-bottom: 0.8rem;
     }
 
-    /* TITLES */
-
     h1, h2, h3 {
-        color: #111111 !important;
+        color: var(--text) !important;
     }
 
     h3 {
-        font-size: 1.3rem !important;
-        margin-top: 0.6rem !important;
-        margin-bottom: 0.8rem !important;
+        font-size: 1.15rem !important;
+        margin-bottom: 0.7rem !important;
     }
-
-    /* LABELS */
 
     label,
     [data-testid="stWidgetLabel"],
     [data-testid="stWidgetLabel"] p {
-        color: #55555A !important;
-        font-weight: 500 !important;
+        color: #5E5E59 !important;
+        font-weight: 550 !important;
     }
 
     /* INPUTS */
 
     [data-baseweb="input"] {
-        background: #FFFFFF !important;
+        background: var(--card) !important;
         border-radius: 16px !important;
-        border: 1px solid #E2E2E6 !important;
+        border: 1px solid var(--border) !important;
         min-height: 52px;
+        box-shadow: none !important;
+    }
+
+    [data-baseweb="input"]:focus-within {
+        border-color: #B2C82D !important;
+        box-shadow: 0 0 0 3px rgba(216,255,69,0.20) !important;
     }
 
     [data-baseweb="input"] input {
-        color: #111111 !important;
+        color: var(--text) !important;
         background: transparent !important;
     }
 
     [data-testid="stNumberInput"] button {
-        color: #111111 !important;
-        background: #FFFFFF !important;
-        border-color: #E2E2E6 !important;
+        color: var(--text) !important;
+        background: var(--card) !important;
+        border-color: var(--border) !important;
     }
 
     [data-testid="stDateInput"] input,
     [data-testid="stTimeInput"] input {
-        color: #111111 !important;
-        background: #FFFFFF !important;
+        color: var(--text) !important;
+        background: var(--card) !important;
+    }
+
+    /* PREDICT BUTTON */
+
+    div.stButton > button {
+        width: 100%;
+        min-height: 66px;
+        border-radius: 18px;
+        border: none;
+        background: var(--accent);
+        color: #171717;
+        font-size: 1.06rem;
+        font-weight: 750;
+        margin-top: 8px;
+        margin-bottom: 24px;
+        transition: all 0.18s ease;
+        box-shadow: 0 10px 28px rgba(130,150,20,0.18);
+    }
+
+    div.stButton > button:hover {
+        background: #E1FF67;
+        color: #111111;
+        border: none;
+        transform: translateY(-1px);
+        box-shadow: 0 14px 34px rgba(130,150,20,0.24);
     }
 
     /* METRICS */
 
     [data-testid="stMetric"] {
-        background: #FFFFFF;
-        padding: 22px;
-        border-radius: 22px;
-        border: 1px solid #E7E7EA;
-        min-height: 105px;
-        margin-bottom: 12px;
+        background: var(--card);
+        padding: 20px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        min-height: 103px;
+        margin-bottom: 10px;
     }
 
     [data-testid="stMetricLabel"] {
-        color: #717178 !important;
+        color: #85857E !important;
     }
 
     [data-testid="stMetricValue"] {
-        color: #111111 !important;
-        font-size: 1.8rem !important;
-        font-weight: 700 !important;
+        color: var(--text) !important;
+        font-size: 1.7rem !important;
+        font-weight: 720 !important;
         letter-spacing: -0.04em;
-    }
-
-    /* BUTTON */
-
-    div.stButton > button {
-        width: 100%;
-        min-height: 64px;
-        border-radius: 20px;
-        border: none;
-        background: linear-gradient(
-            90deg,
-            #111111 0%,
-            #27272A 100%
-        );
-        color: #FFFFFF;
-        font-size: 1.05rem;
-        font-weight: 700;
-        margin-top: 10px;
-        margin-bottom: 24px;
-        transition: all 0.2s ease;
-    }
-
-    div.stButton > button:hover {
-        background: linear-gradient(
-            90deg,
-            #232326 0%,
-            #3A3A3E 100%
-        );
-        color: #FFFFFF;
-        transform: translateY(-1px);
-        border: none;
-    }
-
-    /* MAP */
-
-    iframe {
-        border-radius: 28px !important;
-        border: 1px solid #E7E7EA !important;
-    }
-
-    [data-testid="column"] {
-        padding-left: 0.35rem;
-        padding-right: 0.35rem;
     }
 
     /* FARE RESULT */
 
     .fare-result {
-        background: linear-gradient(
-            135deg,
-            #111111 0%,
-            #25252A 100%
-        );
-        color: white;
+        background: var(--dark);
         border-radius: 24px;
-        padding: 24px;
-        margin-bottom: 20px;
+        padding: 28px;
+        margin-bottom: 22px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .fare-result:after {
+        content: "";
+        position: absolute;
+        width: 180px;
+        height: 180px;
+        background: var(--accent);
+        border-radius: 50%;
+        right: -80px;
+        top: -90px;
+        opacity: 0.9;
     }
 
     .fare-label {
-        color: #A7A7AD;
-        font-size: 0.78rem;
+        color: #B6B6AF;
+        font-size: 0.76rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.08em;
+        position: relative;
+        z-index: 1;
     }
 
     .fare-value {
         color: #FFFFFF;
         font-size: 3.2rem;
-        font-weight: 750;
-        letter-spacing: -0.05em;
-        margin-top: 6px;
+        font-weight: 760;
+        letter-spacing: -0.055em;
+        margin-top: 7px;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* MAP */
+
+    iframe {
+        border-radius: 24px !important;
+        border: 1px solid var(--border) !important;
+    }
+
+    [data-testid="column"] {
+        padding-left: 0.3rem;
+        padding-right: 0.3rem;
+    }
+
+    .footer {
+        text-align: center;
+        color: #989890;
+        padding-top: 42px;
+        padding-bottom: 15px;
+        font-size: 0.8rem;
     }
 
     @media (max-width: 768px) {
 
         .block-container {
-            padding-left: 1.1rem;
-            padding-right: 1.1rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .hero {
+            padding: 26px;
         }
 
         .hero-title {
-            font-size: 3.3rem;
+            font-size: 3.15rem;
+        }
+
+        .top-row {
+            margin-bottom: 24px;
         }
 
     }
@@ -282,19 +349,38 @@ st.markdown(
 # =========================================================
 
 st.markdown(
-    '<div class="brand"></div>',
+    """
+    <div class="top-row">
+        <div class="brand">TaxiFare</div>
+
+        <div class="status-pill">
+            <span class="status-dot"></span>
+            Live pricing
+        </div>
+    </div>
+    """,
     unsafe_allow_html=True
 )
 
+
 st.markdown(
     """
-    <div class="hero-title">
-        Your ride.<br>
-        Your price.
-    </div>
+    <div class="hero">
 
-    <div class="hero-subtitle">
-        Plan your journey, visualize your route and instantly estimate your taxi fare.
+        <div class="hero-kicker">
+            Smart ride estimate
+        </div>
+
+        <div class="hero-title">
+            Know your fare<br>
+            before you ride.
+        </div>
+
+        <div class="hero-subtitle">
+            Enter your trip details, explore the route and get an instant
+            AI-powered taxi fare estimate.
+        </div>
+
     </div>
     """,
     unsafe_allow_html=True
@@ -376,7 +462,7 @@ pickup_datetime = datetime.combine(
 
 
 # =========================================================
-# API PARAMS
+# API
 # =========================================================
 
 url = "https://taxifare.lewagon.ai/predict"
@@ -497,6 +583,7 @@ overview_col, map_col = st.columns(
     gap="large"
 )
 
+
 with overview_col:
 
     st.metric(
@@ -544,10 +631,11 @@ with map_col:
             pickup_longitude
         ],
         radius=8,
-        color="#111111",
+        color="#171717",
         fill=True,
-        fill_color="#111111",
+        fill_color="#D8FF45",
         fill_opacity=1,
+        weight=3,
         tooltip="Pickup"
     ).add_to(m)
 
@@ -557,7 +645,7 @@ with map_col:
             dropoff_longitude
         ],
         radius=8,
-        color="#111111",
+        color="#171717",
         fill=True,
         fill_color="#FFFFFF",
         fill_opacity=1,
@@ -569,7 +657,7 @@ with map_col:
 
         folium.PolyLine(
             route_points,
-            color="#111111",
+            color="#171717",
             weight=5,
             opacity=0.9
         ).add_to(m)
@@ -590,13 +678,7 @@ with map_col:
 
 st.markdown(
     """
-    <div style="
-        text-align:center;
-        color:#88888E;
-        padding-top:50px;
-        padding-bottom:20px;
-        font-size:0.8rem;
-    ">
+    <div class="footer">
         TaxiFare · AI-powered ride estimation
     </div>
     """,
