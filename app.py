@@ -282,7 +282,7 @@ st.markdown(
 # =========================================================
 
 st.markdown(
-    '<div class="brand">TaxiFare</div>',
+    '<div class="brand"></div>',
     unsafe_allow_html=True
 )
 
